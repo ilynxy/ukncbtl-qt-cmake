@@ -1,0 +1,4 @@
+[submodule "src/ukncbtl-qt"]
+	path = src/ukncbtl-qt
+	url = git@github.com:ilynxy/ukncbtl-qt.git
+	branch = cmake

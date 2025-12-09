@@ -1,0 +1,2 @@
+#include <windows.h>
+IDI_ICON1 ICON DISCARDABLE "src/ukncbtl-qt/emulator/images/ukncbtl.ico"
