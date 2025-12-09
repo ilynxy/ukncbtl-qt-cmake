@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PROJECT_NAME unkncbtl-qt)
+set(PROJECT_NAME ukncbtl-qt)
 
 project(${PROJECT_NAME} VERSION 1.0.1 LANGUAGES C CXX)
 
@@ -12,8 +12,8 @@ if (USE_STATIC_QT)
   message("--   CMAKE_FIND_LIBRARY_SUFFIXES was set to '${CMAKE_FIND_LIBRARY_SUFFIXES}'")
 endif()
 
-find_package(QT NAMES Qt5 COMPONENTS Core Gui Widgets Multimedia Script SerialPort REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets Multimedia Script SerialPort REQUIRED)
+find_package(QT NAMES Qt5 COMPONENTS Core Gui Widgets Multimedia LinguistTools Test Script SerialPort REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets Multimedia LinguistTools Test Script SerialPort REQUIRED)
 
 get_target_property(MY_QT_TARGET_TYPE Qt${QT_VERSION_MAJOR}::Core TYPE)
 if(MY_QT_TARGET_TYPE STREQUAL STATIC_LIBRARY)
@@ -56,6 +56,7 @@ set(PROJECT_HEADERS_QT
   src/ukncbtl-qt/emulator/qmemoryview.h
   src/ukncbtl-qt/emulator/qdialogs.h
   src/ukncbtl-qt/emulator/qscripting.h
+
 )
 
 set(PROJECT_HEADERS
@@ -95,7 +96,15 @@ set(PROJECT_SOURCES
   src/ukncbtl-qt/emulator/qmemoryview.cpp
   src/ukncbtl-qt/emulator/qdialogs.cpp
   src/ukncbtl-qt/emulator/qscripting.cpp
+
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  list(APPEND PROJECT_HEADERS_QT
+    src/ukncbtl-qt/emulator/UnitTests.h)
+  list(APPEND PROJECT_SOURCES
+    src/ukncbtl-qt/emulator/UnitTests.cpp)
+endif()
 
 set(PROJECT_WINRC
   src/ukncbtl-qt.rc
@@ -109,6 +118,11 @@ set(PROJECT_QRCS
   src/ukncbtl-qt/emulator/QtUkncBtl.qrc
 )
 
+set(PROJECT_TSS
+  src/ukncbtl-qt/emulator/lang/ukncbtl_en.ts
+  src/ukncbtl-qt/emulator/lang/ukncbtl_ru.ts
+)
+
 qt_wrap_cpp(PROJECT_SRC_MOCS
   ${PROJECT_HEADERS_QT}
 )
@@ -117,9 +131,16 @@ qt_wrap_ui(PROJECT_UIS_MOCS
   ${PROJECT_UIS}
 )
 
+configure_file(src/ukncbtl-qt-i18n.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+qt5_add_translation(PROJECT_QM
+  ${PROJECT_TSS}
+)
+
 qt_add_resources(PROJECT_QRCS_DAT
   ${PROJECT_QRCS}
+  ${CMAKE_CURRENT_BINARY_DIR}/ukncbtl-qt-i18n.qrc
 )
+
 
 add_executable(${PROJECT_NAME}
   ${PROJECT_SRC_MOCS}
@@ -129,7 +150,7 @@ add_executable(${PROJECT_NAME}
   ${PROJECT_SOURCES}
   ${PROJECT_UIS}
   ${PROJECT_WINRC}
-#  ${PROJECT_QM}
+  ${PROJECT_QM}
   ${PROJECT_QRCS_DAT}
 )
 
@@ -150,6 +171,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Multimedia
     Qt${QT_VERSION_MAJOR}::Script
     Qt${QT_VERSION_MAJOR}::SerialPort
+    Qt${QT_VERSION_MAJOR}::Test
 #    $<$<PLATFORM_ID:Windows>:ws2_32>
 )
 
@@ -160,4 +182,5 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME})
