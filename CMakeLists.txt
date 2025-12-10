@@ -131,14 +131,20 @@ qt_wrap_ui(PROJECT_UIS_MOCS
   ${PROJECT_UIS}
 )
 
-configure_file(src/ukncbtl-qt-i18n.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+set_source_files_properties(${PROJECT_TSS}
+  PROPERTIES
+    OUTPUT_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/src/ukncbtl-qt/emulator/lang
+)
+
+#configure_file(src/ukncbtl-qt-i18n.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#list(APPEND PROJECT_QRCS ${CMAKE_CURRENT_BINARY_DIR}/ukncbtl-qt-i18n.qrc)
+
 qt5_add_translation(PROJECT_QM
   ${PROJECT_TSS}
 )
 
 qt_add_resources(PROJECT_QRCS_DAT
   ${PROJECT_QRCS}
-  ${CMAKE_CURRENT_BINARY_DIR}/ukncbtl-qt-i18n.qrc
 )
 
 
