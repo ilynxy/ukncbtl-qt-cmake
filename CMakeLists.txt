@@ -4,6 +4,9 @@ set(PROJECT_NAME ukncbtl-qt)
 
 project(${PROJECT_NAME} VERSION 1.0.1 LANGUAGES C CXX)
 
+
+option(UKNCBTL_ENABLE_SCRIPTING "Enable scripting engine" OFF)
+
 if (USE_STATIC_QT)
   set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
   set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_STATIC_LIBRARY_SUFFIX}")
@@ -12,8 +15,16 @@ if (USE_STATIC_QT)
   message("--   CMAKE_FIND_LIBRARY_SUFFIXES was set to '${CMAKE_FIND_LIBRARY_SUFFIXES}'")
 endif()
 
-find_package(QT NAMES Qt5 COMPONENTS Core Gui Widgets Multimedia LinguistTools Test Script SerialPort REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets Multimedia LinguistTools Test Script SerialPort REQUIRED)
+set(PROJECT_QT_COMPONENTS
+  Core Gui Widgets Multimedia LinguistTools Test SerialPort
+)
+
+if (${UKNCBTL_ENABLE_SCRIPTING})
+  list(APPEND PROJECT_QT_COMPONENTS Script)
+endif()
+
+find_package(QT NAMES Qt5 COMPONENTS ${PROJECT_QT_COMPONENTS} REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS ${PROJECT_QT_COMPONENTS} REQUIRED)
 
 get_target_property(MY_QT_TARGET_TYPE Qt${QT_VERSION_MAJOR}::Core TYPE)
 if(MY_QT_TARGET_TYPE STREQUAL STATIC_LIBRARY)
@@ -55,8 +66,6 @@ set(PROJECT_HEADERS_QT
   src/ukncbtl-qt/emulator/qdisasmview.h
   src/ukncbtl-qt/emulator/qmemoryview.h
   src/ukncbtl-qt/emulator/qdialogs.h
-  src/ukncbtl-qt/emulator/qscripting.h
-
 )
 
 set(PROJECT_HEADERS
@@ -95,9 +104,14 @@ set(PROJECT_SOURCES
   src/ukncbtl-qt/emulator/qdisasmview.cpp
   src/ukncbtl-qt/emulator/qmemoryview.cpp
   src/ukncbtl-qt/emulator/qdialogs.cpp
-  src/ukncbtl-qt/emulator/qscripting.cpp
-
 )
+
+if (${UKNCBTL_ENABLE_SCRIPTING})
+  list(APPEND PROJECT_HEADERS_QT
+    src/ukncbtl-qt/emulator/qscripting.h)
+  list(APPEND PROJECT_SOURCES
+    src/ukncbtl-qt/emulator/qscripting.cpp)
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   list(APPEND PROJECT_HEADERS_QT
@@ -125,6 +139,7 @@ set(PROJECT_TSS
 
 qt_wrap_cpp(PROJECT_SRC_MOCS
   ${PROJECT_HEADERS_QT}
+  TARGET ${PROJECT_NAME}
 )
 
 qt_wrap_ui(PROJECT_UIS_MOCS
@@ -141,7 +156,6 @@ qt_add_resources(PROJECT_QRCS_DAT
   ${CMAKE_CURRENT_BINARY_DIR}/ukncbtl-qt-i18n.qrc
 )
 
-
 add_executable(${PROJECT_NAME}
   ${PROJECT_SRC_MOCS}
   ${PROJECT_UIS_MOCS}
@@ -152,6 +166,12 @@ add_executable(${PROJECT_NAME}
   ${PROJECT_WINRC}
   ${PROJECT_QM}
   ${PROJECT_QRCS_DAT}
+)
+
+message("-- UKNCBTL scripting engine: " ${UKNCBTL_ENABLE_SCRIPTING})
+target_compile_definitions(${PROJECT_NAME}
+  PRIVATE
+    UKNCBTL_ENABLE_SCRIPTING=$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>
 )
 
 target_compile_features(${PROJECT_NAME}
@@ -169,7 +189,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Multimedia
-    Qt${QT_VERSION_MAJOR}::Script
+    $<$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>:Qt${QT_VERSION_MAJOR}::Script>
     Qt${QT_VERSION_MAJOR}::SerialPort
     Qt${QT_VERSION_MAJOR}::Test
 #    $<$<PLATFORM_ID:Windows>:ws2_32>
