@@ -7,6 +7,7 @@ project(${PROJECT_NAME} VERSION 1.0.1 LANGUAGES C CXX)
 
 option(UKNCBTL_ENABLE_SCRIPTING "Enable scripting engine" OFF)
 option(UKNCBTL_ENABLE_50HZ      "Enable 50Hz framerate"   ON)
+option(UKNCBTL_ENABLE_TESTING   "Enable testing"          OFF)
 
 if (USE_STATIC_QT)
   set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
@@ -17,11 +18,15 @@ if (USE_STATIC_QT)
 endif()
 
 set(PROJECT_QT_COMPONENTS
-  Core Gui Widgets Multimedia LinguistTools Test SerialPort
+  Core Gui Widgets Multimedia LinguistTools SerialPort
 )
 
 if (${UKNCBTL_ENABLE_SCRIPTING})
   list(APPEND PROJECT_QT_COMPONENTS Script)
+endif()
+
+if (${UKNCBTL_ENABLE_TESTING})
+  list(APPEND PROJECT_QT_COMPONENTS Test)
 endif()
 
 find_package(QT NAMES Qt5 COMPONENTS ${PROJECT_QT_COMPONENTS} REQUIRED)
@@ -114,7 +119,7 @@ if (${UKNCBTL_ENABLE_SCRIPTING})
     src/ukncbtl-qt/emulator/qscripting.cpp)
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(${UKNCBTL_ENABLE_TESTING})
   list(APPEND PROJECT_HEADERS_QT
     src/ukncbtl-qt/emulator/UnitTests.h)
   list(APPEND PROJECT_SOURCES
@@ -171,10 +176,12 @@ add_executable(${PROJECT_NAME}
 
 message("-- UKNCBTL scripting engine: " ${UKNCBTL_ENABLE_SCRIPTING})
 message("-- UKNCBTL 50Hz framerate  : " ${UKNCBTL_ENABLE_50HZ})
+message("-- UKNCBTL test module     : " ${UKNCBTL_ENABLE_TESTING})
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
     UKNCBTL_ENABLE_SCRIPTING=$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>
     UKNCBTL_ENABLE_50HZ=$<BOOL:${UKNCBTL_ENABLE_50HZ}>
+    UKNCBTL_ENABLE_TESTING=$<BOOL:${UKNCBTL_ENABLE_TESTING}>
 )
 
 target_compile_features(${PROJECT_NAME}
@@ -194,7 +201,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Multimedia
     $<$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>:Qt${QT_VERSION_MAJOR}::Script>
     Qt${QT_VERSION_MAJOR}::SerialPort
-    Qt${QT_VERSION_MAJOR}::Test
+    $<$<BOOL:${UKNCBTL_ENABLE_TESTING}>:Qt${QT_VERSION_MAJOR}::Test>
 #    $<$<PLATFORM_ID:Windows>:ws2_32>
 )
 
