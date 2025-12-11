@@ -5,9 +5,10 @@ set(PROJECT_NAME ukncbtl-qt)
 project(${PROJECT_NAME} VERSION 1.0.1 LANGUAGES C CXX)
 
 
-option(UKNCBTL_ENABLE_SCRIPTING "Enable scripting engine" OFF)
-option(UKNCBTL_ENABLE_50HZ      "Enable 50Hz framerate"   ON)
-option(UKNCBTL_ENABLE_TESTING   "Enable testing"          OFF)
+option(UKNCBTL_ENABLE_SCRIPTING "Enable scripting engine"     OFF)
+option(UKNCBTL_ENABLE_50HZ      "Enable 50Hz framerate"       ON)
+option(UKNCBTL_ENABLE_TESTING   "Enable testing"              OFF)
+option(UKNCBTL_ENABLE_I18N      "Enable internationalization" OFF)
 
 if (USE_STATIC_QT)
   set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
@@ -18,7 +19,7 @@ if (USE_STATIC_QT)
 endif()
 
 set(PROJECT_QT_COMPONENTS
-  Core Gui Widgets Multimedia LinguistTools SerialPort
+  Core Gui Widgets Multimedia SerialPort
 )
 
 if (${UKNCBTL_ENABLE_SCRIPTING})
@@ -27,6 +28,10 @@ endif()
 
 if (${UKNCBTL_ENABLE_TESTING})
   list(APPEND PROJECT_QT_COMPONENTS Test)
+endif()
+
+if (${UKNCBTL_ENABLE_I18N})
+  list(APPEND PROJECT_QT_COMPONENTS LinguistTools)
 endif()
 
 find_package(QT NAMES Qt5 COMPONENTS ${PROJECT_QT_COMPONENTS} REQUIRED)
@@ -152,14 +157,18 @@ qt_wrap_ui(PROJECT_UIS_MOCS
   ${PROJECT_UIS}
 )
 
-configure_file(src/ukncbtl-qt-i18n.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-qt5_add_translation(PROJECT_QM
-  ${PROJECT_TSS}
-)
+if (${UKNCBTL_ENABLE_I18N})
+  configure_file(src/ukncbtl-qt-i18n.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+  qt_add_translation(PROJECT_QM
+    ${PROJECT_TSS}
+  )
+  list(APPEND PROJECT_QRCS
+    ${CMAKE_CURRENT_BINARY_DIR}/ukncbtl-qt-i18n.qrc
+  )
+endif()
 
 qt_add_resources(PROJECT_QRCS_DAT
   ${PROJECT_QRCS}
-  ${CMAKE_CURRENT_BINARY_DIR}/ukncbtl-qt-i18n.qrc
 )
 
 add_executable(${PROJECT_NAME}
@@ -177,11 +186,13 @@ add_executable(${PROJECT_NAME}
 message("-- UKNCBTL scripting engine: " ${UKNCBTL_ENABLE_SCRIPTING})
 message("-- UKNCBTL 50Hz framerate  : " ${UKNCBTL_ENABLE_50HZ})
 message("-- UKNCBTL test module     : " ${UKNCBTL_ENABLE_TESTING})
+message("-- UKNCBTL languages       : " ${UKNCBTL_ENABLE_I18N})
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
     UKNCBTL_ENABLE_SCRIPTING=$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>
     UKNCBTL_ENABLE_50HZ=$<BOOL:${UKNCBTL_ENABLE_50HZ}>
     UKNCBTL_ENABLE_TESTING=$<BOOL:${UKNCBTL_ENABLE_TESTING}>
+    UKNCBTL_ENABLE_I18N=$<BOOL:${UKNCBTL_ENABLE_I18N}>
 )
 
 target_compile_features(${PROJECT_NAME}
