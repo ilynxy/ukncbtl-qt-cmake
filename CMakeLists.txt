@@ -6,6 +6,7 @@ project(${PROJECT_NAME} VERSION 1.0.1 LANGUAGES C CXX)
 
 
 option(UKNCBTL_ENABLE_SCRIPTING "Enable scripting engine" OFF)
+option(UKNCBTL_ENABLE_50HZ      "Enable 50Hz framerate"   ON)
 
 if (USE_STATIC_QT)
   set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
@@ -169,9 +170,11 @@ add_executable(${PROJECT_NAME}
 )
 
 message("-- UKNCBTL scripting engine: " ${UKNCBTL_ENABLE_SCRIPTING})
+message("-- UKNCBTL 50Hz framerate  : " ${UKNCBTL_ENABLE_50HZ})
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
     UKNCBTL_ENABLE_SCRIPTING=$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>
+    UKNCBTL_ENABLE_50HZ=$<BOOL:${UKNCBTL_ENABLE_50HZ}>
 )
 
 target_compile_features(${PROJECT_NAME}
