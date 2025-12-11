@@ -9,6 +9,7 @@ option(UKNCBTL_ENABLE_SCRIPTING "Enable scripting engine"     OFF)
 option(UKNCBTL_ENABLE_50HZ      "Enable 50Hz framerate"       ON)
 option(UKNCBTL_ENABLE_TESTING   "Enable testing"              OFF)
 option(UKNCBTL_ENABLE_I18N      "Enable internationalization" OFF)
+option(UKNCBTL_ENABLE_SPEEDCTL  "Enable emulation speed control" ON)
 
 if (USE_STATIC_QT)
   set(CMAKE_FIND_LIBRARY_PREFIXES "${CMAKE_STATIC_LIBRARY_PREFIX}")
@@ -88,6 +89,7 @@ set(PROJECT_HEADERS
   src/ukncbtl-qt/emulator/emubase/Defines.h
   src/ukncbtl-qt/emulator/emubase/Board.h
 
+  src/ukncbtl-qt/emulator/main.h
   src/ukncbtl-qt/emulator/Emulator.h
 )
 
@@ -187,12 +189,14 @@ message("-- UKNCBTL scripting engine: " ${UKNCBTL_ENABLE_SCRIPTING})
 message("-- UKNCBTL 50Hz framerate  : " ${UKNCBTL_ENABLE_50HZ})
 message("-- UKNCBTL test module     : " ${UKNCBTL_ENABLE_TESTING})
 message("-- UKNCBTL languages       : " ${UKNCBTL_ENABLE_I18N})
+message("-- UKNCBTL speed control   : " ${UKNCBTL_ENABLE_SPEEDCTL})
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
     UKNCBTL_ENABLE_SCRIPTING=$<BOOL:${UKNCBTL_ENABLE_SCRIPTING}>
     UKNCBTL_ENABLE_50HZ=$<BOOL:${UKNCBTL_ENABLE_50HZ}>
     UKNCBTL_ENABLE_TESTING=$<BOOL:${UKNCBTL_ENABLE_TESTING}>
     UKNCBTL_ENABLE_I18N=$<BOOL:${UKNCBTL_ENABLE_I18N}>
+    UKNCBTL_ENABLE_SPEEDCTL=$<BOOL:${UKNCBTL_ENABLE_SPEEDCTL}>
 )
 
 target_compile_features(${PROJECT_NAME}
